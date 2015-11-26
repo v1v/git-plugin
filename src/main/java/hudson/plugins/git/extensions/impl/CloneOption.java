@@ -23,12 +23,16 @@ public class CloneOption extends GitSCMExtension {
     private boolean shallow;
     private String reference;
     private Integer timeout;
+    private Integer depth = 1;
 
     @DataBoundConstructor
-    public CloneOption(boolean shallow, String reference, Integer timeout) {
+    public CloneOption(boolean shallow, String reference, Integer timeout, Integer depth) {
         this.shallow = shallow;
         this.reference = reference;
         this.timeout = timeout;
+        if (depth != null) {
+          this.depth = depth;
+        }
     }
 
     public boolean isShallow() {
@@ -38,9 +42,13 @@ public class CloneOption extends GitSCMExtension {
     public String getReference() {
         return reference;
     }
-    
+
     public Integer getTimeout() {
         return timeout;
+    }
+
+    public Integer getDepth() {
+        return depth;
     }
 
     @Override
@@ -48,11 +56,12 @@ public class CloneOption extends GitSCMExtension {
         if (shallow) {
             listener.getLogger().println("Using shallow clone");
             cmd.shallow();
+            cmd.depth(depth);
         }
         cmd.timeout(timeout);
         cmd.reference(build.getEnvironment(listener).expand(reference));
     }
-    
+
     @Override
     public void decorateFetchCommand(GitSCM scm, GitClient git, TaskListener listener, FetchCommand cmd) throws IOException, InterruptedException, GitException {
     	cmd.timeout(timeout);
